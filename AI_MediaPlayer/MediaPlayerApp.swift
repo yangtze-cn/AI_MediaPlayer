@@ -25,7 +25,7 @@ struct MediaPlayerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            PlaylistView()
         }
         .modelContainer(sharedModelContainer)
     }
