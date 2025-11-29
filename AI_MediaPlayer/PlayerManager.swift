@@ -12,6 +12,9 @@ class PlayerManager: ObservableObject {
     @Published var isPlaying: Bool = false
     @Published var currentTime: Double = 0
     @Published var duration: Double = 0
+    @Published var playbackRate: Float = 1.0
+    
+    let availableRates: [Float] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     
     private var timeObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
@@ -32,13 +35,11 @@ class PlayerManager: ObservableObject {
     // MARK: - Public Methods
     
     func play() {
-        player?.play()
-        isPlaying = true
+        player?.rate = playbackRate
     }
     
     func pause() {
         player?.pause()
-        isPlaying = false
     }
     
     func seek(to time: Double, completion: (() -> Void)? = nil) {
@@ -51,6 +52,15 @@ class PlayerManager: ObservableObject {
                 }
             }
         }
+    }
+    
+    func cyclePlaybackRate() {
+        guard let currentIndex = availableRates.firstIndex(of: playbackRate) else {
+            playbackRate = 1.0
+            return
+        }
+        let nextIndex = (currentIndex + 1) % availableRates.count
+        playbackRate = availableRates[nextIndex]
     }
     
     // MARK: - Private Setup
@@ -83,6 +93,15 @@ class PlayerManager: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] rate in
                 self?.isPlaying = rate > 0
+            }
+            .store(in: &cancellables)
+            
+        // Observe playbackRate changes
+        $playbackRate
+            .sink { [weak self] rate in
+                if self?.player?.rate != 0 {
+                    self?.player?.rate = rate
+                }
             }
             .store(in: &cancellables)
     }

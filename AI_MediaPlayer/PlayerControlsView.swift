@@ -58,6 +58,15 @@ struct PlayerControlsView: View {
                 }
                 
                 Button(action: {
+                    playerManager.cyclePlaybackRate()
+                }) {
+                    Text("\(String(format: "%.2fx", playerManager.playbackRate))")
+                        .font(.body)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
+                
+                Button(action: {
                     isFullScreen.toggle()
                 }) {
                     Image(systemName: "arrow.up.left.and.arrow.down.right")
