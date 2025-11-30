@@ -2,6 +2,7 @@
 import Foundation
 import AVFoundation
 import Combine
+import UIKit
 
 class PlayerManager: ObservableObject {
     
@@ -16,6 +17,7 @@ class PlayerManager: ObservableObject {
     @Published var volume: Float = 1.0
     
     @Published var isMuted: Bool = false
+    @Published var brightness: CGFloat = UIScreen.main.brightness
     
     let availableRates: [Float] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     
@@ -138,6 +140,13 @@ class PlayerManager: ObservableObject {
         $isMuted
             .sink { [weak self] isMuted in
                 self?.player?.isMuted = isMuted
+            }
+            .store(in: &cancellables)
+            
+        // Observe brightness changes
+        $brightness
+            .sink { brightness in
+                UIScreen.main.brightness = brightness
             }
             .store(in: &cancellables)
     }

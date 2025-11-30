@@ -111,6 +111,20 @@ struct PlayerControlsView: View {
                         .foregroundColor(.white)
                 }
             }
+            
+            // MARK: - Brightness Control
+            
+            HStack {
+                Image(systemName: "sun.min.fill")
+                    .foregroundColor(.white)
+                
+                Slider(value: $playerManager.brightness, in: 0...1)
+                    .accentColor(.white)
+                    .frame(width: 100)
+                
+                Image(systemName: "sun.max.fill")
+                    .foregroundColor(.white)
+            }
         }
         .padding()
         .background(Color.black.opacity(0.6))
