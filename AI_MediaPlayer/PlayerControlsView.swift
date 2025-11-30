@@ -93,6 +93,24 @@ struct PlayerControlsView: View {
                         .foregroundColor(.white)
                 }
             }
+            
+            // MARK: - Volume Control
+            
+            HStack {
+                Image(systemName: "speaker.fill")
+                    .foregroundColor(.white)
+                
+                Slider(value: $playerManager.volume, in: 0...1)
+                    .accentColor(.white)
+                    .frame(width: 100)
+                
+                Button(action: {
+                    playerManager.toggleMute()
+                }) {
+                    Image(systemName: playerManager.isMuted || playerManager.volume == 0 ? "speaker.slash.fill" : "speaker.wave.3.fill")
+                        .foregroundColor(.white)
+                }
+            }
         }
         .padding()
         .background(Color.black.opacity(0.6))

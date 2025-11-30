@@ -13,6 +13,9 @@ class PlayerManager: ObservableObject {
     @Published var currentTime: Double = 0
     @Published var duration: Double = 0
     @Published var playbackRate: Float = 1.0
+    @Published var volume: Float = 1.0
+    
+    @Published var isMuted: Bool = false
     
     let availableRates: [Float] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     
@@ -76,12 +79,18 @@ class PlayerManager: ObservableObject {
         seek(to: newTime)
     }
     
+    func toggleMute() {
+        isMuted.toggle()
+    }
+    
     // MARK: - Private Setup
     
     private func setupPlayer(with url: URL) {
         let asset = AVAsset(url: url)
         let playerItem = AVPlayerItem(asset: asset)
         self.player = AVPlayer(playerItem: playerItem)
+        self.player?.volume = volume
+        self.player?.isMuted = isMuted
         
         addObservers()
     }
@@ -115,6 +124,20 @@ class PlayerManager: ObservableObject {
                 if self?.player?.rate != 0 {
                     self?.player?.rate = rate
                 }
+            }
+            .store(in: &cancellables)
+            
+        // Observe volume changes
+        $volume
+            .sink { [weak self] volume in
+                self?.player?.volume = volume
+            }
+            .store(in: &cancellables)
+            
+        // Observe mute changes
+        $isMuted
+            .sink { [weak self] isMuted in
+                self?.player?.isMuted = isMuted
             }
             .store(in: &cancellables)
     }
