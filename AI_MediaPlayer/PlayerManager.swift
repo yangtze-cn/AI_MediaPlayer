@@ -43,6 +43,9 @@ class PlayerManager: ObservableObject {
     }
     
     func seek(to time: Double, completion: (() -> Void)? = nil) {
+        // Optimistically update the current time to update the UI immediately
+        self.currentTime = time
+        
         let targetTime = CMTime(seconds: time, preferredTimescale: 600)
         player?.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] finished in
             // When the seek operation is finished, call the completion handler on the main thread.
@@ -61,6 +64,16 @@ class PlayerManager: ObservableObject {
         }
         let nextIndex = (currentIndex + 1) % availableRates.count
         playbackRate = availableRates[nextIndex]
+    }
+    
+    func skipForward(by seconds: Double = 10) {
+        let newTime = min(currentTime + seconds, duration)
+        seek(to: newTime)
+    }
+    
+    func skipBackward(by seconds: Double = 10) {
+        let newTime = max(currentTime - seconds, 0)
+        seek(to: newTime)
     }
     
     // MARK: - Private Setup

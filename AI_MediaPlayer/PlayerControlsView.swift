@@ -45,6 +45,16 @@ struct PlayerControlsView: View {
             // MARK: - Control Buttons
             
             HStack(spacing: 40) {
+                // 快退按钮
+                Button(action: {
+                    playerManager.skipBackward()
+                }) {
+                    Image(systemName: "gobackward.10")
+                        .font(.title)
+                        .foregroundColor(.white)
+                }
+                
+                // 播放/暂停按钮
                 Button(action: {
                     if playerManager.isPlaying {
                         playerManager.pause()
@@ -53,6 +63,15 @@ struct PlayerControlsView: View {
                     }
                 }) {
                     Image(systemName: playerManager.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.title)
+                        .foregroundColor(.white)
+                }
+                
+                // 快进按钮
+                Button(action: {
+                    playerManager.skipForward()
+                }) {
+                    Image(systemName: "goforward.10")
                         .font(.title)
                         .foregroundColor(.white)
                 }
