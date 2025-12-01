@@ -6,6 +6,10 @@ struct FullScreenPlayerView: View {
     @ObservedObject var playerManager: PlayerManager
     @Binding var isFullScreen: Bool
     
+    // Control visibility
+    @State private var showControls = true
+    @State private var hideControlsTask: Task<Void, Never>?
+    
     // Gesture states
     @State private var showGestureOverlay = false
     @State private var gestureType: GestureType = .volume
@@ -30,23 +34,39 @@ struct FullScreenPlayerView: View {
                         .transition(.opacity)
                 }
 
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            isFullScreen = false
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.largeTitle)
-                                .foregroundColor(.white)
-                                .padding()
+                // Controls
+                if showControls {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                isFullScreen = false
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.largeTitle)
+                                    .foregroundColor(.white)
+                                    .padding()
+                            }
                         }
+                        Spacer()
+                        PlayerControlsView(playerManager: playerManager, isFullScreen: $isFullScreen)
+                            .padding(.bottom, 30)
                     }
-                    Spacer()
-                    PlayerControlsView(playerManager: playerManager, isFullScreen: $isFullScreen)
-                        .padding(.bottom, 30)
+                    .transition(.opacity)
                 }
             }
+            .gesture(
+                // Single tap to toggle controls
+                TapGesture(count: 1)
+                    .onEnded { _ in
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showControls.toggle()
+                        }
+                        if showControls {
+                            resetHideControlsTimer()
+                        }
+                    }
+            )
             .gesture(
                 // Double tap gesture
                 TapGesture(count: 2)
@@ -56,6 +76,7 @@ struct FullScreenPlayerView: View {
                         } else {
                             playerManager.play()
                         }
+                        resetHideControlsTimer()
                     }
             )
             .simultaneousGesture(
@@ -66,8 +87,37 @@ struct FullScreenPlayerView: View {
                     }
                     .onEnded { _ in
                         endDragGesture()
+                        resetHideControlsTimer()
                     }
             )
+        }
+        .onAppear {
+            resetHideControlsTimer()
+        }
+        .onDisappear {
+            hideControlsTask?.cancel()
+        }
+    }
+    
+    // MARK: - Control Visibility
+    
+    private func resetHideControlsTimer() {
+        // Cancel existing task
+        hideControlsTask?.cancel()
+        
+        // Show controls
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showControls = true
+        }
+        
+        // Start new timer
+        hideControlsTask = Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+            if !Task.isCancelled {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showControls = false
+                }
+            }
         }
     }
     
