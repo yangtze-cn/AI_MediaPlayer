@@ -59,16 +59,18 @@ State is primarily managed in `PlayerManager` (ObservableObject) and exposed via
       -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
     ```
     Ensure `** BUILD SUCCEEDED **` before proceeding with git commit.
--   **Commit Messages**: Use prefixed format for all commits:
-    - `feat`: New features (e.g., "feat: add volume control and mute toggle")
-    - `bugfix`: Bug fixes (e.g., "bugfix: fix seek progress delay")
-    - `optimize`: Performance improvements (e.g., "optimize: improve slider responsiveness")
-    - `arch`: Architecture changes (e.g., "arch: refactor PlayerManager state management")
-    - `docs`: Documentation updates (e.g., "docs: update FEATURES.md")
-    - `style`: Code style/formatting changes (e.g., "style: fix indentation")
-    - `refactor`: Code refactoring without behavior change (e.g., "refactor: extract time formatting logic")
-    - `test`: Adding or updating tests (e.g., "test: add unit tests for PlayerManager")
-    - `chore`: Build/dependency updates (e.g., "chore: update gitignore")
+-   **Commit Messages**: 
+    - **Language**: **ALL commit messages MUST be written in English.** This is a strict requirement for consistency and international collaboration.
+    - Use prefixed format for all commits:
+        - `feat`: New features (e.g., "feat: add volume control and mute toggle")
+        - `bugfix`: Bug fixes (e.g., "bugfix: fix seek progress delay")
+        - `optimize`: Performance improvements (e.g., "optimize: improve slider responsiveness")
+        - `arch`: Architecture changes (e.g., "arch: refactor PlayerManager state management")
+        - `docs`: Documentation updates (e.g., "docs: update FEATURES.md")
+        - `style`: Code style/formatting changes (e.g., "style: fix indentation")
+        - `refactor`: Code refactoring without behavior change (e.g., "refactor: extract time formatting logic")
+        - `test`: Adding or updating tests (e.g., "test: add unit tests for PlayerManager")
+        - `chore`: Build/dependency updates (e.g., "chore: update gitignore")
 
 ## 5. Roadmap & Features
 
