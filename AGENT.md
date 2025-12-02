@@ -53,6 +53,12 @@ State is primarily managed in `PlayerManager` (ObservableObject) and exposed via
 
 ### Git & Version Control
 -   **Config Files**: Do NOT commit `*.xcuserstate` or `xcuserdata`. These are ignored in `.gitignore`.
+-   **Compilation Check**: **MUST** run local compilation check after every code modification before committing:
+    ```bash
+    xcodebuild -project AI_MediaPlayer.xcodeproj -scheme AI_MediaPlayer \
+      -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
+    ```
+    Ensure `** BUILD SUCCEEDED **` before proceeding with git commit.
 -   **Commit Messages**: Use prefixed format for all commits:
     - `feat`: New features (e.g., "feat: add volume control and mute toggle")
     - `bugfix`: Bug fixes (e.g., "bugfix: fix seek progress delay")
