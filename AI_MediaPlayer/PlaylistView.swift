@@ -1,30 +1,62 @@
 
 import SwiftUI
+import SwiftData
 
 struct PlaylistView: View {
-    // Sample playlist data
-    let playlistItems: [PlaylistItem] = [
-        PlaylistItem(title: "Big Buck Bunny", description: "A classic open-source animation.", videoUrl: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!),
-        PlaylistItem(title: "Elephants Dream", description: "Another great open-source movie.", videoUrl: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4")!),
-        PlaylistItem(title: "Sintel", description: "A fantasy adventure from the Blender Foundation.", videoUrl: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4")!),
-        PlaylistItem(title: "Tears of Steel", description: "A sci-fi short film.", videoUrl: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4")!)
-    ]
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \PlaylistItem.title) private var playlistItems: [PlaylistItem]
 
     var body: some View {
         NavigationView {
             List(playlistItems) { item in
-                NavigationLink(destination: PlayerView(playlistItem: item)) {
-                    VStack(alignment: .leading) {
-                        Text(item.title)
-                            .font(.headline)
-                        Text(item.description)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                if let videoUrl = item.videoUrl {
+                    NavigationLink(destination: PlayerView(playlistItem: item)) {
+                        VStack(alignment: .leading) {
+                            Text(item.title)
+                                .font(.headline)
+                            Text(item.description)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
             .navigationTitle("Playlist")
+            .onAppear {
+                initializeDefaultPlaylistIfNeeded()
+            }
         }
+    }
+    
+    // MARK: - Default Data Initialization
+    
+    private func initializeDefaultPlaylistIfNeeded() {
+        guard playlistItems.isEmpty else { return }
+        
+        // Add default videos on first launch
+        let defaultVideos = [
+            (title: "Big Buck Bunny", 
+             description: "A classic open-source animation.", 
+             url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"),
+            (title: "Elephants Dream", 
+             description: "Another great open-source movie.", 
+             url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"),
+            (title: "Sintel", 
+             description: "A fantasy adventure from the Blender Foundation.", 
+             url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"),
+            (title: "Tears of Steel", 
+             description: "A sci-fi short film.", 
+             url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4")
+        ]
+        
+        for video in defaultVideos {
+            if let url = URL(string: video.url) {
+                let item = PlaylistItem(title: video.title, description: video.description, videoUrl: url)
+                modelContext.insert(item)
+            }
+        }
+        
+        try? modelContext.save()
     }
 }
 
@@ -47,7 +79,9 @@ struct PlayerView: View {
 
     init(playlistItem: PlaylistItem) {
         self.playlistItem = playlistItem
-        _playerManager = StateObject(wrappedValue: PlayerManager(url: playlistItem.videoUrl))
+        // Safely unwrap videoUrl, use a default URL if nil
+        let url = playlistItem.videoUrl ?? URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!
+        _playerManager = StateObject(wrappedValue: PlayerManager(url: url))
     }
 
     var body: some View {

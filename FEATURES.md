@@ -134,15 +134,14 @@ AI_MediaPlayer 是一个基于 SwiftUI 构建的 iOS 视频播放器应用，使
 ### 项目文件结构
 ```
 AI_MediaPlayer/
-├── MediaPlayerApp.swift          # 应用入口
+├── MediaPlayerApp.swift          # 应用入口（配置 SwiftData）
 ├── PlayerManager.swift           # 播放器管理器（ViewModel）
 ├── VideoPlayerView.swift         # 视频渲染视图（UIViewRepresentable）
 ├── PlayerControlsView.swift     # 播放控制 UI
 ├── FullScreenPlayerView.swift   # 全屏播放视图
 ├── GestureOverlayView.swift     # 手势操作视觉反馈视图
-├── PlaylistView.swift           # 播放列表界面
-├── PlaylistItem.swift           # 播放列表数据模型
-├── Item.swift                   # SwiftData 模型（未使用）
+├── PlaylistView.swift           # 播放列表界面（使用 SwiftData @Query）
+├── PlaylistItem.swift           # 播放列表数据模型（SwiftData @Model）
 └── Assets.xcassets/             # 资源文件
 ```
 
@@ -221,7 +220,7 @@ graph LR
 - [ ] 深色/浅色模式适配
 
 ### 数据持久化
-- [ ] 使用 SwiftData 存储播放列表
+- [x] 使用 SwiftData 存储播放列表
 - [ ] 记住播放位置
 - [ ] 用户偏好设置持久化
 
@@ -235,7 +234,13 @@ graph LR
 
 ## 📝 版本历史
 
-### v1.2 - Current (2025-12-01)
+### v1.3 - Current (2025-12-02)
+- ✅ 播放列表数据持久化（使用 SwiftData）
+- ✅ 首次启动自动添加默认视频
+- ✅ 应用重启后保留播放列表数据
+
+### v1.2 (2025-12-01)
+- ✅ 控制界面自动隐藏功能（3秒无交互自动隐藏）
 - ✅ 手势控制功能（双击暂停/播放、滑动调节音量/亮度/进度）
 - ✅ 手势操作视觉反馈（显示当前音量/亮度/进度值）
 
