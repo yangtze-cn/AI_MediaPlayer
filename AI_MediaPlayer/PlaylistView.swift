@@ -25,6 +25,13 @@ struct PlaylistView: View {
             .onAppear {
                 initializeDefaultPlaylistIfNeeded()
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: HistoryView()) {
+                        Image(systemName: "clock.arrow.circlepath")
+                    }
+                }
+            }
         }
     }
     
@@ -61,6 +68,7 @@ struct PlaylistView: View {
 }
 
 struct PlayerView: View {
+    @Environment(\.modelContext) private var modelContext
     let playlistItem: PlaylistItem
     @StateObject private var playerManager: PlayerManager
     @State private var isFullScreen = false
@@ -152,10 +160,16 @@ struct PlayerView: View {
         .onAppear {
             playerManager.play()
             resetHideControlsTimer()
+            // Restore playback time if available
+            if let lastTime = getLastPlaybackTime(), lastTime > 0 {
+                playerManager.seek(to: lastTime)
+            }
+            addToHistory()
         }
         .onDisappear {
             playerManager.pause()
             hideControlsTask?.cancel()
+            addToHistory(currentTime: playerManager.currentTime)
         }
         .fullScreenCover(isPresented: $isFullScreen) {
             FullScreenPlayerView(playerManager: playerManager, isFullScreen: $isFullScreen)
@@ -183,6 +197,61 @@ struct PlayerView: View {
                     showControls = false
                 }
             }
+        }
+    }
+    
+    // MARK: - History Management
+    
+    private func addToHistory(currentTime: Double? = nil) {
+        let urlString = playlistItem.videoUrlString
+        let descriptor = FetchDescriptor<PlaybackHistoryItem>(
+            predicate: #Predicate<PlaybackHistoryItem> { item in
+                item.videoUrlString == urlString
+            }
+        )
+        
+        do {
+            let existingItems = try modelContext.fetch(descriptor)
+            if let existingItem = existingItems.first {
+                // Update existing item
+                existingItem.lastPlayedDate = Date()
+                // Update other fields in case they changed
+                existingItem.videoTitle = playlistItem.title
+                existingItem.videoDescription = playlistItem.description
+                if let time = currentTime {
+                    existingItem.playbackTime = time
+                }
+            } else {
+                // Create new item
+                if let url = playlistItem.videoUrl {
+                    let newItem = PlaybackHistoryItem(
+                        title: playlistItem.title,
+                        url: url,
+                        description: playlistItem.description,
+                        playbackTime: currentTime ?? 0.0
+                    )
+                    modelContext.insert(newItem)
+                }
+            }
+        } catch {
+            print("Failed to fetch history items: \(error)")
+        }
+    }
+    
+    private func getLastPlaybackTime() -> Double? {
+        let urlString = playlistItem.videoUrlString
+        let descriptor = FetchDescriptor<PlaybackHistoryItem>(
+            predicate: #Predicate<PlaybackHistoryItem> { item in
+                item.videoUrlString == urlString
+            }
+        )
+        
+        do {
+            let existingItems = try modelContext.fetch(descriptor)
+            return existingItems.first?.playbackTime
+        } catch {
+            print("Failed to fetch history items: \(error)")
+            return nil
         }
     }
     

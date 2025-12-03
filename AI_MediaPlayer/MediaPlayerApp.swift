@@ -13,6 +13,7 @@ struct MediaPlayerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             PlaylistItem.self,
+            PlaybackHistoryItem.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

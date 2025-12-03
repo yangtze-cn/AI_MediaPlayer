@@ -140,6 +140,12 @@ struct PlayerControlsView: View {
                 sliderValue = playerManager.currentTime
             }
         }
+        .onChange(of: sliderValue) { newValue in
+            // Enable scrubbing: seek while dragging the slider
+            if isSeeking {
+                playerManager.seek(to: newValue)
+            }
+        }
     }
     
     private func formatTime(_ time: Double) -> String {
